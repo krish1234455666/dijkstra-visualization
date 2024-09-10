@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dijkstra Algorithm Visualization</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- jQuery for AJAX request -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+
+        /* Glow effect for the shortest path */
+        .glow {
+            stroke: rgb(52, 49, 235);
+            stroke-width: 6;
+            stroke-opacity: 0.9;
+            animation: glow 1s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                stroke-opacity: 0.9;
+            }
+            to {
+                stroke-opacity: 0.3;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([27.7172, 85.3240], 13); // Default view of Kathmandu Valley
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Fetch JSON data
+        $.getJSON('dijkstras_data.json', function(data) {
+            console.log('Data loaded:', data);  // Debug: Check if data is loaded
+
+            // Add start and end nodes
+            const startNode = L.circleMarker([data.start_node[0], data.start_node[1]], { color: 'green' }).addTo(map).bindPopup('Start Node');
+            const endNode = L.circleMarker([data.end_node[0], data.end_node[1]], { color: 'red' }).addTo(map).bindPopup('End Node');
+
+            // Variables to store explored paths and nodes
+            let exploredNodesMarkers = [];
+            let exploredEdgesLines = [];
+
+            // Function to animate explored nodes and edges
+            let index = 0;
+            const delay = 250; // milliseconds
+
+            function animateExploration() {
+                if (index < data.explored_nodes.length) {
+                    // Add the next explored node
+                    let exploredNodeMarker = L.circleMarker([data.explored_nodes[index][0], data.explored_nodes[index][1]], { color: 'brown', radius: 4 }).addTo(map);
+                    exploredNodesMarkers.push(exploredNodeMarker);
+                }
+                if (index < data.edges_explored.length) {
+                    // Draw the next explored edge
+                    let exploredEdgeLine = L.polyline(data.edges_explored[index].map(coord => [coord[0], coord[1]]), { color: 'black', weight: 2 }).addTo(map);
+                    exploredEdgesLines.push(exploredEdgeLine);
+                }
+                index++;
+                if (index < Math.max(data.explored_nodes.length, data.edges_explored.length)) {
+                    setTimeout(animateExploration, delay);
+                } else {
+                    // Once all nodes and edges are explored, highlight the shortest path
+                    highlightShortestPath();
+                }
+            }
+
+            // Function to highlight the shortest path and dim other paths
+            function highlightShortestPath() {
+                // Dim all explored paths by reducing opacity
+                exploredEdgesLines.forEach(line => {
+                    line.setStyle({ color: '#aaa', opacity: 0.7, weight: 2 });
+                });
+
+                // Highlight the shortest path with a glowing effect
+                const shortestPath = L.polyline(data.shortest_path.map(coord => [coord[0], coord[1]]), { className: 'glow' }).addTo(map);
+
+                // Optionally, you can zoom into the shortest path
+                map.fitBounds(shortestPath.getBounds());
+            }
+
+            // Start the exploration animation
+            animateExploration();
+        }).fail(function() {
+            console.error("Error loading JSON data. Please ensure the JSON file is accessible and correctly formatted.");
+        });
+    </script>
+
+</body>
+</html>
