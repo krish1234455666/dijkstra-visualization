@@ -38,6 +38,10 @@ def dijkstra_algorithm(graph, start_node, end_node):
 
 place_name = "Kathmandu Valley, Nepal"
 
+#  Specify start and target points (use lat/lon of your choice)
+start_latlng = (27.686154, 85.315757)  
+end_latlng = (27.682096, 85.319508)    
+
 #Get the graph for Kathmandu
 G = ox.graph_from_place(place_name, network_type='drive')
 gdf_nodes, gdf_edges = ox.graph_to_gdfs(G, nodes=True, edges=True)
@@ -48,10 +52,6 @@ for u, v, data in G.edges(data=True):
 
 if len(G.nodes) < 2:
     raise ValueError("Graph must have at least two nodes to compute the shortest path.")
-
-#  Specify start and target points (use lat/lon of your choice)
-start_latlng = (27.686154, 85.315757)  
-end_latlng = (27.682096, 85.319508)    
 
 # Finding nearest nodes to the start and end lat/lon
 source_node = ox.distance.nearest_nodes(G, start_latlng[1], start_latlng[0])
