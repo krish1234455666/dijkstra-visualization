@@ -42,7 +42,7 @@ The project consists of the following components:
 
 - Install Python 3.x and the following Python libraries:
   ```bash
-  pip install osmnx networkx matplotlib
+  pip install osmnx networkx matplotlib scikit-learn
   ```
 
 - Ensure you have Python's built-in HTTP server or any other local server for serving the HTML file.
@@ -53,7 +53,7 @@ The Python script fetches the road network from OpenStreetMap and applies Dijkst
 
 - **To run the Python script:**
   ```bash
-  python dijkstra_visualization.py
+  python main.py
   ```
 
   This will:
@@ -66,12 +66,12 @@ The Python script fetches the road network from OpenStreetMap and applies Dijkst
 The HTML file contains a Leaflet map that visualizes the Dijkstra algorithm's execution. Since the file uses **AJAX** to fetch JSON data, it needs to be served through a local server.
 
 #### **Run the HTML file on localhost:8000**:
-1. Open a terminal and navigate to the directory where your `index.html` file is located.
+1. Open a terminal and navigate to the directory where your `visualization.html` file is located.
 2. Run the following command to start a simple HTTP server (using Python):
    ```bash
    python -m http.server 8000
    ```
-3. Open your browser and go to `http://localhost:8000/index.html`.
+3. Open your browser and go to `http://localhost:8000/visualization.html`.
 
 The page will load the map and animate the Dijkstra's algorithm exploration on it.
 
